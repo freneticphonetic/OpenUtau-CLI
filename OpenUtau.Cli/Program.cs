@@ -1,11 +1,13 @@
-﻿namespace OpenUtau.Cli;
+﻿using OpenUtau.Core.Headless;
+
+namespace OpenUtau.Cli;
 
 internal static class Program {
     private const int ExitSuccess = 0;
     private const int ExitInvalidArguments = 1;
     private const int ExitRenderNotImplemented = 2;
 
-    private static int Main(string[] args) {
+    private static async Task<int> Main(string[] args) {
         if (args.Length == 1 && args[0] == "--help") {
             PrintUsage(Console.Out);
             return ExitSuccess;
@@ -19,10 +21,10 @@ internal static class Program {
             return Invalid($"Unknown command '{args[0]}'.");
         }
 
-        return RunRender(args);
+        return await RunRender(args);
     }
 
-    private static int RunRender(string[] args) {
+    private static async Task<int> RunRender(string[] args) {
         if (args.Length < 2) {
             return Invalid("Missing input .ustx path.");
         }
@@ -53,8 +55,15 @@ internal static class Program {
             return Invalid("Unexpected extra arguments.");
         }
 
-        Console.Error.WriteLine("Render command recognized, but rendering is not wired yet.");
-        return ExitRenderNotImplemented;
+        var headlessRenderService = new HeadlessRenderService();
+        try {
+            await headlessRenderService.RenderMixdownAsync(inputPath, outputPath);
+        } catch (NotImplementedException ex) {
+            Console.Error.WriteLine(ex.Message);
+            return ExitRenderNotImplemented;
+        }
+
+        return ExitSuccess;
     }
 
     private static int Invalid(string message) {

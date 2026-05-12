@@ -1,0 +1,24 @@
+name: .NET Build
+
+'on':
+  pull_request:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # The solution targets net8.0 on Linux, including OpenUtau.Cli, so install .NET 8.
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore
+        run: dotnet restore OpenUtau.sln
+
+      - name: Build
+        run: dotnet build OpenUtau.sln --configuration Release --no-restore

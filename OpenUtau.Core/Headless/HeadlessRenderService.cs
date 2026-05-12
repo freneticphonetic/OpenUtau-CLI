@@ -1,4 +1,8 @@
-﻿namespace OpenUtau.Core.Headless;
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace OpenUtau.Core.Headless;
 
 public class HeadlessRenderService {
     public Task RenderMixdownAsync(
